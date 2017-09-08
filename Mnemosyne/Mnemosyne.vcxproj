@@ -107,6 +107,7 @@
       <EntryPointSymbol>WinMain</EntryPointSymbol>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <FixedBaseAddress>true</FixedBaseAddress>
+      <AdditionalOptions>/stub:stub.bin %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
